@@ -33,7 +33,7 @@ app.use('/' , (re ,res)=>{
 
 mongoose.connect(process.env.MongoDBURL)
 .then(()=>{console.log("We are succesfuly connected to the database");
-app.listen(process.env.PORT,()=>{
+app.listen(()=>{
     console.log(`We are listing to port ${process.env.PORT}`)
 });
 })
