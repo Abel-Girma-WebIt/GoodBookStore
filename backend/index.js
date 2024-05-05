@@ -10,13 +10,10 @@ let cookies = require('cookies');
 let bcryptjs = require('bcryptjs');
 
 require('dotenv').config();
-const corsOptions = {
-    origin: 'https://good-book-store-fe.vercel.app',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  };
+
   
   // Enable CORS for all routes
-  app.use(cors(corsOptions));
+  app.use(cors({ origin: 'https://good-book-store-fe.vercel.app', credentials: true }));
 
 app.use(express.json()); 
 app.use(cookieparser());
