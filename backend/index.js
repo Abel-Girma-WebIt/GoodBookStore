@@ -14,7 +14,7 @@ let bcryptjs = require('bcryptjs');
 // let refreshSecKey = "refreshSecKey";
 require('dotenv').config();
 
-app.use('/' , (req ,res)=>(res.status(200).json({message : "Backend running!"})))
+
 
 const corsOptions = {
     origin: 'https://good-book-store-fe.vercel.app',
@@ -37,6 +37,8 @@ app.listen(process.env.PORT,()=>{
 });
 })
 .catch((err)=>{console.log(`Error connecting to the databse ${err}`)})
+
+app.get('/' , async (req ,res)=>(res.status(200).send({message : "Backend running!"})))
 
 app.post('/user/register', async (req, res) => {
     let { firstname, lastname, email, username, password } = req.body;
