@@ -3,38 +3,36 @@ let cors = require('cors')
 let mongoose = require('mongoose');
 const { myBookModel } = require('./bookModel');
 const {logModel} = require('./loginmodel')
-PORT=4000
+// let MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0";
+// let PORT = 4000;
 let app = express();
 let jwt = require('jsonwebtoken');
 let cookieparser = require('cookie-parser')
 let cookies = require('cookies');
 let bcryptjs = require('bcryptjs');
-MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0"
-accessSecKey = "accessSecKey"
-refreshSecKey = "refreshSecKey"
+// let accessSecKey = "accessSecKey";
+// let refreshSecKey = "refreshSecKey";
 require('dotenv').config();
 
-  
-//   Enable CORS for all routes
-  app.use(cors({ origin: 'https://good-book-store-fe.vercel.app', credentials: true ,
-  methods: 'GET,POST,PUT,DELETE'
-   }));
+app.get('/' , (req ,res)=>(res.status(200).json({message : "Backend running!"})))
 
-app.get('/', (req ,res)=>res.status(200).json({message : "Backend working!"}))
-
+const corsOptions = {
+    origin: 'https://good-book-store-fe.vercel.app',
+    methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+    credentials: true, // Enable credentials (cookies, authorization headers, etc.)
+  };
 
 app.use(express.json()); 
+app.use(cors(corsOptions));
 app.use(cookieparser());
-
-
 
 
 
 // {remeber to add this before trying the post method}
 
-mongoose.connect(MongoDBURL)
+mongoose.connect(process.env.MongoDBURL)
 .then(()=>{console.log("We are succesfuly connected to the database");
-app.listen(()=>{
+app.listen(process.env.PORT,()=>{
     console.log(`We are listing to port ${process.env.PORT}`)
 });
 })
@@ -101,8 +99,8 @@ else {
             return res.status(400).json({ message: "Invalid username or password. Please try again!"});
         }
         else{
-            let accessToken =  jwt.sign({username: doesUserExist.username} ,accessSecKey , {expiresIn:"20m"});
-            let refreshToken = jwt.sign({username: doesUserExist.username} ,refreshSecKey , {expiresIn:"40m"});
+            let accessToken =  jwt.sign({username: doesUserExist.username} ,process.env.accessSecKey , {expiresIn:"20m"});
+            let refreshToken = jwt.sign({username: doesUserExist.username} ,process.env.refreshSecKey , {expiresIn:"40m"});
 
             res.cookie('access_token', accessToken, { maxAge: 1200000});
             res.cookie('refresh_token', refreshToken, { maxAge: 2400000 , httpOnly: true });
@@ -159,7 +157,7 @@ const VerifyUser = async (req, res, next) => {
             return res.status(401).json({ valid: false, message: "Invalid access token!" });
         }
     } else {
-        jwt.verify(accessTokenCookie, accessSecKey, (err, decoded) => {
+        jwt.verify(accessTokenCookie, process.env.accessSecKey, (err, decoded) => {
             if (err) {
                 // Refresh token is missing or expired, send 401 Unauthorized
                 return res.status(401).json({ valid: false, message: "Invalid access token!" });
@@ -178,8 +176,8 @@ const verifyRefreshToken = async (req, res) => {
         return false; // Refresh token is missing
     } else {
         try {
-            const decoded = jwt.verify(refreshTokenCookie, refreshSecKey);
-            let accessToken = jwt.sign({ username: decoded.username }, accessSecKey, { expiresIn: "20m" });
+            const decoded = jwt.verify(refreshTokenCookie, process.env.refreshSecKey);
+            let accessToken = jwt.sign({ username: decoded.username }, process.env.accessSecKey, { expiresIn: "20m" });
             res.cookie('access_token', accessToken, { maxAge: 1200000 });
             return true; // Refresh token is valid
         } catch (err) {
