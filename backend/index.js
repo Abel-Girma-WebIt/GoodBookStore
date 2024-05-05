@@ -8,7 +8,7 @@ let jwt = require('jsonwebtoken');
 let cookieparser = require('cookie-parser')
 let cookies = require('cookies');
 let bcryptjs = require('bcryptjs');
-// MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0"
+MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0"
 accessSecKey = "accessSecKey"
 refreshSecKey = "refreshSecKey"
 require('dotenv').config();
@@ -28,7 +28,7 @@ app.use(cookieparser());
 
 // {remeber to add this before trying the post method}
 
-mongoose.connect(process.env.MongoDBURL)
+mongoose.connect(MongoDBURL)
 .then(()=>{console.log("We are succesfuly connected to the database");
 app.listen(()=>{
     console.log(`We are listing to port ${process.env.PORT}`)
