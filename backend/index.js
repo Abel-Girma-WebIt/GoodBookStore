@@ -14,10 +14,14 @@ refreshSecKey = "refreshSecKey"
 require('dotenv').config();
 
   
-  // Enable CORS for all routes
+//   Enable CORS for all routes
 //   app.use(cors({ origin: 'https://good-book-store-3n0na46l4-abel-girma-webits-projects.vercel.app', credentials: true ,
 //   methods: 'GET,POST,PUT,DELETE'
 //    }));
+
+app.use('/' , (res , req)=>{
+    res.status(200).send({message : "Working"})
+})
 
 app.use(cors())
 
