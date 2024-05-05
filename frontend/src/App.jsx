@@ -11,7 +11,6 @@ import LogIn from './Compo/LogIn'
 import Register from './Compo/Register'
 import { BiSolidLogIn } from "react-icons/bi";
 import { AiOutlineUserAdd } from "react-icons/ai";
-import LogOut from './Compo/LogOut';
 import { useState , useEffect } from 'react';
 
 
@@ -24,13 +23,10 @@ import { useState , useEffect } from 'react';
 function App() {
 
 
-  let [logOut , setLogOut] =useState(false);
-
 
   return (
 
     <BrowserRouter id="main_page">
-      {logOut &&<LogOut closeModal={setLogOut} />}
       <NavLink id="header-nav-container">
           <ul id='header-ul'>
               <li className='hearder-li'><Link className='header-links' to='/home'>Home</Link></li>
@@ -38,9 +34,6 @@ function App() {
               <li className='hearder-li'><Link className='header-links' to='/books/addbooks'>Donat-Book</Link></li>
               <li className='hearder-li'><Link className='header-links' to='/about'>About</Link></li>
               <li className='hearder-li' ><Link className='header-links' to='/user/login'>LogIn</Link></li>
-              <li className='hearder-li'><Link className='header-links' to='/about' onClick={()=>{
-                setLogOut(true)
-                }}>Logout</Link></li>
           </ul>
       </NavLink>
           <Routes>
@@ -53,7 +46,6 @@ function App() {
             <Route path='/about' element={<About></About>}></Route>
             <Route path='/user/login' element={<LogIn></LogIn>}></Route>
             <Route path='/user/register' element={<Register></Register>}></Route>
-            <Route path='/user/logout' element={<LogOut></LogOut>}></Route>
           </Routes>
           
     </BrowserRouter>
