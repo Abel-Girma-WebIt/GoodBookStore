@@ -15,7 +15,10 @@ require('dotenv').config();
 
   
   // Enable CORS for all routes
-  app.use(cors({ origin: 'https://good-book-store-fe.vercel.app', credentials: true }));
+  app.use(cors({ origin: 'https://good-book-store-fe.vercel.app', credentials: true ,
+  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+   }));
 
 app.use(express.json()); 
 app.use(cookieparser());
