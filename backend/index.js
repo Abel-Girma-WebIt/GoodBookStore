@@ -20,8 +20,8 @@ require('dotenv').config();
   methods: 'GET,POST,PUT,DELETE'
    }));
 
-app.use('/' , (res , req)=>{
-    res.status(200).send({message : "Working"})
+app.get('/' , (res , req)=>{
+    res.status(200).json({message : "Working"})
 })
 
 
