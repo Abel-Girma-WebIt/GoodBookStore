@@ -24,10 +24,6 @@ app.use(cookieparser());
 
 
 
-app.use('/' , (re ,res)=>{
-    res.send("Server is running!")
-})
-
 
 // {remeber to add this before trying the post method}
 
