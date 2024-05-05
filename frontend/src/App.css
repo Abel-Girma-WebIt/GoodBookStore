@@ -82,7 +82,7 @@ body, #root {
 
 #home-intro-div{
   width: 100%;
-  color: white;
+  color: yellow;
   margin-top: 10%;
   display: flex;
   flex-direction: column;
