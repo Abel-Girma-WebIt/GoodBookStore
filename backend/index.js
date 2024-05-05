@@ -3,21 +3,26 @@ let cors = require('cors')
 let mongoose = require('mongoose');
 const { myBookModel } = require('./bookModel');
 const {logModel} = require('./loginmodel')
-// let MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0";
-// let PORT = 4000;
 let app = express();
 let jwt = require('jsonwebtoken');
 let cookieparser = require('cookie-parser')
 let cookies = require('cookies');
 let bcryptjs = require('bcryptjs');
-// let accessSecKey = "accessSecKey";
-// let refreshSecKey = "refreshSecKey";
+
 require('dotenv').config();
 
-
 app.use(express.json()); 
-app.use(cors());
 app.use(cookieparser());
+
+
+const allowedOrigin = 'https://good-book-store-backend.vercel.app/';
+
+const corsOptions = {
+  origin: allowedOrigin,
+  methods: 'GET, POST, PUT, DELETE', // Allow all methods
+};
+
+app.use(cors(corsOptions));
 
 
 app.use('/' , (re ,res)=>{
