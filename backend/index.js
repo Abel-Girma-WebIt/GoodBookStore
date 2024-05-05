@@ -3,6 +3,7 @@ let cors = require('cors')
 let mongoose = require('mongoose');
 const { myBookModel } = require('./bookModel');
 const {logModel} = require('./loginmodel')
+PORT=4000
 let app = express();
 let jwt = require('jsonwebtoken');
 let cookieparser = require('cookie-parser')
