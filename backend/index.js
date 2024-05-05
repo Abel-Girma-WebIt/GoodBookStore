@@ -8,7 +8,9 @@ let jwt = require('jsonwebtoken');
 let cookieparser = require('cookie-parser')
 let cookies = require('cookies');
 let bcryptjs = require('bcryptjs');
-
+// MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0"
+accessSecKey = "accessSecKey"
+refreshSecKey = "refreshSecKey"
 require('dotenv').config();
 
   
@@ -93,8 +95,8 @@ else {
             return res.status(400).json({ message: "Invalid username or password. Please try again!"});
         }
         else{
-            let accessToken =  jwt.sign({username: doesUserExist.username} ,process.env.accessSecKey , {expiresIn:"20m"});
-            let refreshToken = jwt.sign({username: doesUserExist.username} ,process.env.refreshSecKey , {expiresIn:"40m"});
+            let accessToken =  jwt.sign({username: doesUserExist.username} ,accessSecKey , {expiresIn:"20m"});
+            let refreshToken = jwt.sign({username: doesUserExist.username} ,refreshSecKey , {expiresIn:"40m"});
 
             res.cookie('access_token', accessToken, { maxAge: 1200000});
             res.cookie('refresh_token', refreshToken, { maxAge: 2400000 , httpOnly: true });
@@ -151,7 +153,7 @@ const VerifyUser = async (req, res, next) => {
             return res.status(401).json({ valid: false, message: "Invalid access token!" });
         }
     } else {
-        jwt.verify(accessTokenCookie, process.env.accessSecKey, (err, decoded) => {
+        jwt.verify(accessTokenCookie, accessSecKey, (err, decoded) => {
             if (err) {
                 // Refresh token is missing or expired, send 401 Unauthorized
                 return res.status(401).json({ valid: false, message: "Invalid access token!" });
@@ -170,8 +172,8 @@ const verifyRefreshToken = async (req, res) => {
         return false; // Refresh token is missing
     } else {
         try {
-            const decoded = jwt.verify(refreshTokenCookie, process.env.refreshSecKey);
-            let accessToken = jwt.sign({ username: decoded.username }, process.env.accessSecKey, { expiresIn: "20m" });
+            const decoded = jwt.verify(refreshTokenCookie, refreshSecKey);
+            let accessToken = jwt.sign({ username: decoded.username }, accessSecKey, { expiresIn: "20m" });
             res.cookie('access_token', accessToken, { maxAge: 1200000 });
             return true; // Refresh token is valid
         } catch (err) {
