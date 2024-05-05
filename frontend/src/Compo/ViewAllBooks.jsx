@@ -17,7 +17,7 @@ axios.defaults.withCredentials = true;
 
 useEffect(()=>{
 
-axios.get('https://good-book-store-backend.vercel.app/books/all-books')
+axios.get('https://good-book-store.vercel.app/books/all-books')
 .then((res)=>{
     if(res.data.valid){
     setallBooks(res.data.data);

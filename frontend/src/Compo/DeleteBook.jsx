@@ -18,7 +18,7 @@ axios.defaults.withCredentials = true;
 
 useEffect(()=>{
 
-    axios.get(`https://good-book-store-backend.vercel.app/books/bookfind/${id}`)
+    axios.get(`https://good-book-store.vercel.app/books/bookfind/${id}`)
     .then((res)=>{console.log(res);
         setBookForDeltetion(res.data)})
     .catch((err)=>{console.log(err)
@@ -32,7 +32,7 @@ useEffect(()=>{
 
  
 function deleteBook() {
-    axios.delete(`https://good-book-store-backend.vercel.app/books/delete/${id}`)
+    axios.delete(`https://good-book-store.vercel.app/books/delete/${id}`)
     .then(()=>{console.log("Book has been deleted");
         setStatus(true)})
     .catch((err)=>{console.log(`Error deleteing the book. Err desc : ${err}`);

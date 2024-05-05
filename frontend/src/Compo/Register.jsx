@@ -25,7 +25,7 @@ export default function Register() {
 
     function onRegsiterClick(e) {
             e.preventDefault();
-            axios.post('https://good-book-store-backend.vercel.app/user/register', newUserData)
+            axios.post('https://good-book-store.vercel.app/user/register', newUserData)
                 .then((res) => {
                     console.log("Successfully created an account!");
                     setNewUserData({

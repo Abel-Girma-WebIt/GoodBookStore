@@ -8,7 +8,7 @@ export default function LogOut({closeModal}) {
     const Navigate = useNavigate();
   
     function clearCookieAndLogOUt (){
-        axios.post('https://good-book-store-backend.vercel.app/user/logout')
+        axios.post('https://good-book-store.vercel.app/user/logout')
         .then((res)=>{console.log(res.data.message);
                         Navigate('/user/login');
                          closeModal(false)})

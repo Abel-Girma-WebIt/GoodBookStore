@@ -10,7 +10,7 @@ let [bookData , setBookData] = useState([]);
 
 useEffect(()=>{
 
-axios.get('https://good-book-store-backend.vercel.app/books/all-books')
+axios.get('https://good-book-store.vercel.app/books/all-books')
 .then((res)=>{console.log(res.data.data);
                 setBookData(res.data.data)})
 

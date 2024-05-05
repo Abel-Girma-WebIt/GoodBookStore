@@ -33,7 +33,7 @@ function postBookButton(e){
 
     e.preventDefault();
 
-    axios.post('https://good-book-store-backend.vercel.app/books/addbooks' , newBook)
+    axios.post('https://good-book-store.vercel.app/books/addbooks' , newBook)
     .then((res)=>{
                if(res.data.valid){
                 setNewBook({title:"",author :"",year:"",image:"",desc:""});
