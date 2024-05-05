@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cookieparser());
 
 
-const allowedOrigin = 'https://good-book-store-backend.vercel.app/';
+const allowedOrigin = 'https://good-book-store-clientside.vercel.app/';
 
 const corsOptions = {
   origin: allowedOrigin,
