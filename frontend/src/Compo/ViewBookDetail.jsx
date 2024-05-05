@@ -19,7 +19,7 @@ axios.defaults.withCredentials = true;
 let {id}=useParams();
 
 useEffect(()=>{
-    axios.get(`http://localhost:4000/books/bookfind/${id}`)
+    axios.get(`https://good-book-store-backend.vercel.app/books/bookfind/${id}`)
 .then((res)=>{console.log(res);
  setBookDetail(res.data)})
 .catch((err)=>{console.log(err);
