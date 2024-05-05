@@ -11,7 +11,7 @@ let bcryptjs = require('bcryptjs');
 
 require('dotenv').config();
 const corsOptions = {
-    origin: 'https://good-book-store-fe.vercel.app/',
+    origin: 'https://good-book-store-fe.vercel.app',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
   
