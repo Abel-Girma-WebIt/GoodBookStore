@@ -20,9 +20,7 @@ require('dotenv').config();
   methods: 'GET,POST,PUT,DELETE'
    }));
 
-app.get('/' , (res , req)=>{
-    res.status(200).json({message : "Working"})
-})
+app.get('/', (req ,res)=>res.status(200).json({message : "Backend working!"}))
 
 
 app.use(express.json()); 
