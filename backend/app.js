@@ -14,13 +14,9 @@ let bcryptjs = require('bcryptjs');
 // let refreshSecKey = "refreshSecKey";
 require('dotenv').config();
 
-const corsOptions = {
-    origin: 'http://localhost:3000',
-    credentials: true, // Enable credentials (cookies, authorization headers, etc.)
-  };
 
 app.use(express.json()); 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(cookieparser());
 
 
