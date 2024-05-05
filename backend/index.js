@@ -14,7 +14,7 @@ let bcryptjs = require('bcryptjs');
 // let refreshSecKey = "refreshSecKey";
 require('dotenv').config();
 
-app.get('/' , (req ,res)=>(res.status(200).json({message : "Backend running!"})))
+app.use('/' , (req ,res)=>(res.status(200).json({message : "Backend running!"})))
 
 const corsOptions = {
     origin: 'https://good-book-store-fe.vercel.app',
