@@ -18,7 +18,7 @@ axios.defaults.withCredentials = true;
 
 useEffect(()=>{
 
-    axios.get(`https://bookstorebackend-jzt9hayz9-abel-girma-webits-projects.vercel.app/books/bookfind/${id}`)
+    axios.get(`https://bookstorebackend-nsb32tta8-abel-girma-webits-projects.vercel.app/books/bookfind/${id}`)
     .then((res)=>{console.log(res);
         setBookForDeltetion(res.data)})
     .catch((err)=>{console.log(err)
