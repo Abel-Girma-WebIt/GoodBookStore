@@ -121,31 +121,6 @@ catch(err){
 });
 
 
-app.post('/user/logout' ,async (req ,res)=>{
-    try{
-
-        let refreshTokenInCookie= req.cookies.refresh_token;
-        if(!refreshTokenInCookie){
-            return res.status(400).json({message : "User already logged out!"})
-
-        }
-        else{
-            res.clearCookie('access_token');
-            res.clearCookie('refresh_token');
-            return res.json({ message: 'Logout successful' });
-        }
-    
-
-    }
-    catch(err){
-        res.status(500).json({message : "Unable to lofg out. Server error!"})
-    }
-})
-
-
-
-
-
 const VerifyUser = async (req, res, next) => {
     let accessTokenCookie = req.cookies.access_token;
     if (!accessTokenCookie) {
