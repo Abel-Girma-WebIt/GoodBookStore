@@ -12,7 +12,7 @@ let [allBooks ,setallBooks] = useState([]);
 let [inputText, setInputText] =useState('')
 let Navigate = useNavigate();
 
-let [tokenStatus , setTokenStatus] = useState();
+// let [tokenStatus , setTokenStatus] = useState();
 axios.defaults.withCredentials = true;
 
 useEffect(()=>{
@@ -21,12 +21,12 @@ axios.get('https://good-book-store-be.vercel.app/books/all-books')
 .then((res)=>{
     if(res.data.valid){
     setallBooks(res.data.data);
-    setTokenStatus(true);
+    // setTokenStatus(true);
 }})
 .catch((err)=>{console.log(err);
-        // setTokenStatus(false);
+        setTokenStatus(false);
         console.log(`Error fetching user data: ${err}`);
-        // Navigate('/user/login');})
+        Navigate('/user/login');})
 
 },[])
 
