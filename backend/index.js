@@ -16,7 +16,7 @@ require('dotenv').config();
 
 
 app.use(cors({
-    origin: '*', // Allow requests from any origin
+    origin: 'https://good-book-store-fe.vercel.app', // Allow requests from any origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
