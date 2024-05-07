@@ -25,7 +25,7 @@ export default function Register() {
 
     function onRegsiterClick(e) {
             e.preventDefault();
-            axios.post('https://bookstorebackend-mrqk3e92w-abel-girma-webits-projects.vercel.app/user/register', newUserData)
+            axios.post('https://bookstorebackend-okah0sxfp-abel-girma-webits-projects.vercel.app/user/register', newUserData)
                 .then((res) => {
                     console.log("Successfully created an account!");
                     setNewUserData({

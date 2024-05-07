@@ -17,7 +17,7 @@ axios.defaults.withCredentials = true;
 
 useEffect(()=>{
 
-axios.get('https://bookstorebackend-mrqk3e92w-abel-girma-webits-projects.vercel.app/books/all-books')
+axios.get('https://bookstorebackend-okah0sxfp-abel-girma-webits-projects.vercel.app/books/all-books')
 .then((res)=>{
     if(res.data.valid){
     setallBooks(res.data.data);
