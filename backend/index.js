@@ -17,7 +17,7 @@ require('dotenv').config();
 
 
 const corsOptions = {
-    origin: 'https://goodbookstore-9w7tl3hbm-abel-girma-webits-projects.vercel.app',
+    origin: 'https://goodbookstore-g4y8z37n7-abel-girma-webits-projects.vercel.app',
     methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
     credentials: true, // Enable credentials (cookies, authorization headers, etc.)
   };
