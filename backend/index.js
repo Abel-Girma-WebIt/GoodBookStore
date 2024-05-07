@@ -18,7 +18,7 @@ require('dotenv').config();
 
   
 const corsOptions = {
-    origin: 'https://example.com', // Replace with your desired origin
+    origin: '', // Replace with your desired origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   };
