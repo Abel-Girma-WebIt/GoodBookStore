@@ -1,323 +1,80 @@
-let express = require('express');
-let cors = require('cors')
-let mongoose = require('mongoose');
-const { myBookModel } = require('./bookModel');
-const {logModel} = require('./loginmodel')
-// let MongoDBURL="mongodb+srv://girma0918:09180918@cluster0.iepsogl.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0";
-// let PORT = 4000;
-let app = express();
-let jwt = require('jsonwebtoken');
-let cookieparser = require('cookie-parser')
-let cookies = require('cookies');
-let bcryptjs = require('bcryptjs');
-// let accessSecKey = "accessSecKey";
-// let refreshSecKey = "refreshSecKey";
-require('dotenv').config();
+import React from 'react'
+import axios from 'axios'
+import {Link, useNavigate} from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineEdit } from "react-icons/ai";
+import { AiOutlineRead } from "react-icons/ai";
+
+export default function ViewAllBooks() {
+
+let [allBooks ,setallBooks] = useState([]);
+let [inputText, setInputText] =useState('')
+let Navigate = useNavigate();
+
+let [tokenStatus , setTokenStatus] = useState();
+axios.defaults.withCredentials = true;
+
+useEffect(()=>{
+
+axios.get('https://good-book-store-be.vercel.app/books/all-books')
+.then((res)=>{
+    if(res.data.valid){
+    setallBooks(res.data.data);
+    setTokenStatus(true);
+}})
+.catch((err)=>{console.log(err);
+        // setTokenStatus(false);
+        console.log(`Error fetching user data: ${err}`);
+        Navigate('/user/login');})
+
+},[])
 
 
-app.use(cors({
-    origin: 'https://good-book-store-fe.vercel.app', // Allow requests from any origin
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-}));
-app.use(express.json()); 
-app.use(cookieparser());
-
-
-
-// {remeber to add this before trying the post method}
-
-mongoose.connect(process.env.MongoDBURL)
-.then(()=>{console.log("We are succesfuly connected to the database");
-app.listen(process.env.PORT,()=>{
-    console.log(`We are listing to port ${process.env.PORT}`)
-});
-})
-.catch((err)=>{console.log(`Error connecting to the databse ${err}`)})
-
-app.get('/' , async (req ,res)=>(res.status(200).send({message : "Backend running!"})))
-
-app.post('/user/register', async (req, res) => {
-    let { firstname, lastname, email, username, password } = req.body;
-
-    try {
-        // Check if all required fields are provided
-        if (!firstname || !lastname || !email || !username || !password) {
-            return res.status(400).json({ message: "Please fill all required fields!" });
-        }
-
-        // Check if password meets minimum length requirement
-        if (password.length < 8) {
-            return res.status(402).json({ message: "Password must be at least 8 characters or more!" });
-        }
-
-        // Check if the username already exists
-        let doesUserNameExist = await logModel.findOne({ username });
-        if (doesUserNameExist) {
-            return res.status(401).json({ message: "User already exists. Please use a different username or login!" });
-        }
-
-        // Hash the password before storing it
-        let hashedPassword = await bcryptjs.hash(password, 12);
-
-        // Create a new user with hashed password
-        let newUser = await logModel.create({
-            firstname,
-            lastname,
-            email,
-            username,
-            password: hashedPassword
-        });
-
-        return res.status(200).json({ message: "New user account created successfully!" });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Server side error. Error Type: " + err.message });
-    }
-});
-
-app.post('/user/login', async (req, res) =>{
-
-try{
-
-let {username , password} = req.body;
-
-if(!username || !password){
-    return res.status(400).json({ message: "Please fill out all required fields"});
-}
-
-else {
-  let doesUserExist = await logModel.findOne({username});
-   if(!doesUserExist){
-    return res.status(400).json({ message: "User does not exist!"});
-   }
-
-   else{
-    let passwordMatch = await bcryptjs.compare(password , doesUserExist.password);
-        if(!passwordMatch){
-            return res.status(400).json({ message: "Invalid username or password. Please try again!"});
-        }
-        else{
-            let accessToken =  jwt.sign({username: doesUserExist.username} ,process.env.accessSecKey , {expiresIn:"20m"});
-            let refreshToken = jwt.sign({username: doesUserExist.username} ,process.env.refreshSecKey , {expiresIn:"40m"});
-
-            res.cookie('access_token', accessToken, { maxAge: 1200000});
-            res.cookie('refresh_token', refreshToken, { maxAge: 2400000 , httpOnly: true });
-            return res.status(200).json({ message: "Successfully logged In!"});
-        }
-   }
+function addInputeData(e){
+    setInputText(e.target.value)
 }
 
 
-
-
-}
-catch(err){
-
-    return res.status(500).json({ message: "Server side error. Error Type: " + err.message });
-
-}
-
-});
-
-
-app.post('/user/logout' ,async (req ,res)=>{
-    try{
-
-        let refreshTokenInCookie= req.cookies.refresh_token;
-        if(!refreshTokenInCookie){
-            return res.status(400).json({message : "User already logged out!"})
-
-        }
-        else{
-            res.clearCookie('access_token');
-            res.clearCookie('refresh_token');
-            return res.json({ message: 'Logout successful' });
-        }
-    
-
-    }
-    catch(err){
-        res.status(500).json({message : "Unable to lofg out. Server error!"})
-    }
-})
-
-
-
-
-
-const VerifyUser = async (req, res, next) => {
-    let accessTokenCookie = req.cookies.access_token;
-    if (!accessTokenCookie) {
-        const refreshSuccessful = await verifyRefreshToken(req, res);
-        if (refreshSuccessful) {
-            next(); // Proceed if refresh token successfully refreshed the access token
-        } else {
-            return res.status(401).json({ valid: false, message: "Invalid access token!" });
-        }
-    } else {
-        jwt.verify(accessTokenCookie, process.env.accessSecKey, (err, decoded) => {
-            if (err) {
-                // Refresh token is missing or expired, send 401 Unauthorized
-                return res.status(401).json({ valid: false, message: "Invalid access token!" });
-            } else {
-                // Access token is valid, proceed to the next middleware
-                req.username = decoded.username;
-                next();
-            }
-        });
-    }
-};
-
-const verifyRefreshToken = async (req, res) => {
-    let refreshTokenCookie = req.cookies.refresh_token;
-    if (!refreshTokenCookie) {
-        return false; // Refresh token is missing
-    } else {
-        try {
-            const decoded = jwt.verify(refreshTokenCookie, process.env.refreshSecKey);
-            let accessToken = jwt.sign({ username: decoded.username }, process.env.accessSecKey, { expiresIn: "20m" });
-            res.cookie('access_token', accessToken, { maxAge: 1200000 });
-            return true; // Refresh token is valid
-        } catch (err) {
-            return false; // Refresh token is invalid
-        }
-    }
-};
-
-
-
-
-
-
-
-
-
-app.post('/books/addbooks' , VerifyUser , async(req ,res)=>{
-let valid;
-try{
-
-if(!req.body.title || !req.body.author || !req.body.year  || !req.body.image  || !req.body.desc){
-
-    res.send({message : "please fill all required fileds and submit the book"})
-}
-
-let newBook = await myBookModel.create({
-
-    title : req.body.title,
-    author : req.body.author,
-    year : req.body.year,
-    image : req.body.image,
-    desc : req.body.desc
-    
-
-})
-
-res.status(200).send({valid : true , message : "Book has been added to the database"})
-
-}
-catch(err){
-
-    res.status(500).send({message : "We could not add the book!"})
-}
-
-})
-
-
-app.get('/books/all-books', VerifyUser , async( req , res)=>{
-
-let valid 
-
-try{
-let AllBooks = await myBookModel.find({});
-
-if(!AllBooks){
-
-    res.status(400).send({message : "We can' find all books at this time."})
-}
-
-else {
-    res.status(200).json({valid : true , data : AllBooks});
-}
-
-
-}
-
-catch (err){
-res. status(500).send({mesage : `we could not get the books ${err}`})
-}
-});
-
-app.get('/books/bookfind/:id', VerifyUser, async(req , res)=>{
-    try{
-
-        let {id} = req.params;
-
-    let BookById = await myBookModel.findById(id);
-
-
-    if(!BookById){
-
-        res.status(400).json({message : "There is not in our book store."})
-    }
-
-    return res.status(200).json(BookById);
-    
-   
-    }
-    
-    catch (err){
-    res.status(500).json({mesage : `we could not get the books ${err}`})
-    }
-    });
-
-
-app.put('/books/editbook/:id' , VerifyUser ,async(req, res)=>{
-
-
-
-    try{
-
-        let {id}=req.params;
-    
-        if(!req.body.title || !req.body.author || !req.body.year  || !req.body.image  || !req.body.desc){
-
-            res.send({message : "please fill all required fileds and submit the book"})
-        }
-
-    let editedBook = await myBookModel.findByIdAndUpdate(id,req.body);
-
-    res.status(200).send({message : "Book has been updated succesfully"})
-    }
-
-    catch(err){
-        res. status(500).send({mesage : `Error updating the book ${err}`})
-    }
-})
-
-
-app.delete('/books/delete/:id' , VerifyUser , async(req,res)=>{
-
-
-    try{
-        let {id}=req.params;
-
-    let deleteBook = await myBookModel.findByIdAndDelete(id);
-
-    if(deleteBook){
-
-        res.status(200).send({mesage : "Book has been deleted successsfully"})
-    }
- 
-    else{
-
-        res.status(400).send({mesage : "Error deleting this book!"})
-    }
-
-    }
-    catch(err){
-
-        res. status(500).send({mesage : `Error deleteing the book ${err}`})
-
-    }
-})
+console.log(inputText);
+
+
+    return (
+        <div id="showall_main_div">
+
+            <div id="search_area_div">
+                <h1>Search your favorite book here</h1>
+                <div id="search_div">
+                    <input onChange={addInputeData}id="search_input" placeholder="Search here..." type="text" />
+                </div>
+            </div>
+
+            <div id="book_Card_container_div">
+                {allBooks.filter((item)=> {return (
+                    inputText.toLocaleLowerCase()===""? item : item.title.toLocaleLowerCase().includes(inputText))}).map((item)=>{
+                return(
+                    <ul id="each_card_ul" key={item._id}>  
+                      <li className='card_li'>{item.title}</li>
+                      <img id="book_image" src={item.image}  alt="" />
+                      <li className='card_li'>{item.author}</li>
+                      <li className='card_li'>{Date(item.year)}</li>
+                      <li className='card_li'><Link to={`/books/bookfind/${item._id}`}><button  className='action_buttons'  ><AiOutlineRead className='React_action_icons'/></button></Link><Link to={`/books/editbook/${item._id}`} ><button className='action_buttons'><AiOutlineEdit className='React_action_icons'/></button></Link><Link to={`/books/delete/${item._id}`}><button className='action_buttons'><AiOutlineDelete className='React_action_icons'/></button></Link></li>
+                    </ul>
+                )
+                })} 
+            </div>  
+            <div id='footer_div'>
+                <footer>
+                <h2>About Our Small Bookstore App</h2>
+                <p>Welcome to Your Small Bookstore App, where we're passionate about bringing literature into the hands of readers everywhere. Our bookstore is a labor of love, created with the goal of making books accessible to all, regardless of location or financial means.</p>
+                <p>At Your Small Bookstore, we offer a diverse collection of books spanning various genres, including fiction, non-fiction, poetry, and more. Whether you're looking for a timeless classic, a thrilling mystery, or a thought-provoking memoir, we have something for every reader.</p>
+                <p>But our mission goes beyond simply selling books. We believe in the power of literature to inspire, educate, and unite people from all walks of life. That's why we're committed to fostering a community of readers who share their love of books, engage in meaningful discussions, and support one another in their reading journeys.</p>
+                <p>In addition to providing a platform for readers, we also encourage book donations to help expand our collection and ensure that everyone has access to quality reading material. Whether you're donating a beloved book or discovering a new favorite, we're grateful for your support.</p>
+                <p>Thank you for choosing Your Small Bookstore App. Together, let's celebrate the joy of reading and build a world where literature thrives.</p>
+                <p>&copy; 2024 Your Small Bookstore App. All rights reserved.</p>
+                <p>Contact us: info@yourbookstoreapp.com</p>
+                </footer> 
+    </div>
+        </div>
+    )
+} 
