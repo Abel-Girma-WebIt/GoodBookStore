@@ -16,14 +16,12 @@ require('dotenv').config();
 
 
 
-const corsOptions = {
-    origin: 'https://goodbookstore-g4y8z37n7-abel-girma-webits-projects.vercel.app',
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  };
   
-app.use(cors(corsOptions));
+const corsOptions = {
+    origin: 'https://example.com', // Replace with your desired origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  };
 app.use(express.json()); 
 app.use(cookieparser());
 
