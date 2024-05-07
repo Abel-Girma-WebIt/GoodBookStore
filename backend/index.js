@@ -15,13 +15,11 @@ let bcryptjs = require('bcryptjs');
 require('dotenv').config();
 
 
-
-  
-const corsOptions = {
-    origin: 'https://goodbookstorefe-abel-girma-webits-projects.vercel.app', // Replace with your desired origin
+app.use(cors({
+    origin: '*', // Allow requests from any origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-  };
+}));
 app.use(express.json()); 
 app.use(cookieparser());
 
