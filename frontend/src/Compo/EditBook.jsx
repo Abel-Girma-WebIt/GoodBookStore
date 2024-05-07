@@ -22,7 +22,7 @@ axios.defaults.withCredentials = true;
     let {id}=useParams();
     
     useEffect(() => {
-        axios.get(`https://bookstorebackend-nsb32tta8-abel-girma-webits-projects.vercel.app/books/bookfind/${id}`)
+        axios.get(`https://good-book-store-be.vercel.app/books/bookfind/${id}`)
             .then((res) => {
                 console.log(res);
                 setEditedBookDetail(res.data);
@@ -50,7 +50,7 @@ function postBookButton(e){
 
     e.preventDefault();
 
-    axios.put(`https://bookstorebackend-nsb32tta8-abel-girma-webits-projects.vercel.app/books/editbook/${id}` , EditedBookDetail)
+    axios.put(`https://good-book-store-be.vercel.app/books/editbook/${id}` , EditedBookDetail)
     .then(()=>{setEditedBookDetail({title:"",author :"",year:"",image:"",desc:""});
                 console.log('Book suceesfully edited');
                  setPostStatus(true)})
