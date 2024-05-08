@@ -97,8 +97,8 @@ app.post('/user/login', async (req, res) => {
         }
 
         // Create and set tokens
-        const accessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "20m" });
-        const refreshToken = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "40m" });
+        const accessToken = jwt.sign({ username: user.username }, process.env.accessSecKey, { expiresIn: "20m" });
+        const refreshToken = jwt.sign({ username: user.username }, process.env.refreshSecKey, { expiresIn: "40m" });
 
         res.cookie('access_token', accessToken, { maxAge: 1200000, httpOnly: true });
         res.cookie('refresh_token', refreshToken, { maxAge: 2400000, httpOnly: true });
@@ -119,7 +119,7 @@ const verifyUser = async (req, res, next) => {
             return res.status(401).json({ valid: false, message: "Access token is missing!" });
         }
 
-        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        jwt.verify(accessToken, process.env.accessSecKey, (err, decoded) => {
             if (err) {
                 return res.status(401).json({ valid: false, message: "Invalid access token!" });
             } else {
