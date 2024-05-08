@@ -16,7 +16,13 @@ const corsOptions = {
   };
   
   // Enable CORS for all routes
-  app.use(cors(corsOptions));
+  app.use(cors({
+    origin: 'https://good-book-store-fe.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Add allowed methods here
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  }));
+  
 
 app.use(express.json()); 
 app.use(cookieparser());
