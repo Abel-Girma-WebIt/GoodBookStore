@@ -28,7 +28,7 @@ axios.get('https://good-book-store-be.vercel.app/books/all-books')
         console.log(`Error fetching user data: ${err}`);
         Navigate('/user/login');})
 
-},[0])
+},[])
 
 
 function addInputeData(e){
