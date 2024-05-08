@@ -129,46 +129,44 @@ catch(err){
 
 
 
-const VerifyUser = async (req, res, next) => {
-    let accessTokenCookie = req.cookies.access_token;
-    if (!accessTokenCookie) {
-        const refreshSuccessful = await verifyRefreshToken(req, res);
-        if (refreshSuccessful) {
-            next(); // Proceed if refresh token successfully refreshed the access token
-        } else {
-            return res.status(401).json({ valid: false, message: "Invalid access token!" });
-        }
-    } else {
-        jwt.verify(accessTokenCookie, process.env.accessSecKey, (err, decoded) => {
-            if (err) {
-                // Refresh token is missing or expired, send 401 Unauthorized
-                return res.status(401).json({ valid: false, message: "Invalid access token!" });
-            } else {
-                // Access token is valid, proceed to the next middleware
-                req.username = decoded.username;
-                next();
-            }
-        });
-    }
-};
+// const VerifyUser = async (req, res, next) => {
+//     let accessTokenCookie = req.cookies.access_token;
+//     if (!accessTokenCookie) {
+//         const refreshSuccessful = await verifyRefreshToken(req, res);
+//         if (refreshSuccessful) {
+//             next(); // Proceed if refresh token successfully refreshed the access token
+//         } else {
+//             return res.status(401).json({ valid: false, message: "Invalid access token!" });
+//         }
+//     } else {
+//         jwt.verify(accessTokenCookie, process.env.accessSecKey, (err, decoded) => {
+//             if (err) {
+//                 // Refresh token is missing or expired, send 401 Unauthorized
+//                 return res.status(401).json({ valid: false, message: "Invalid access token!" });
+//             } else {
+//                 // Access token is valid, proceed to the next middleware
+//                 req.username = decoded.username;
+//                 next();
+//             }
+//         });
+//     }
+// };
 
-const verifyRefreshToken = async (req, res) => {
-    let refreshTokenCookie = req.cookies.refresh_token;
-    if (!refreshTokenCookie) {
-        return false; // Refresh token is missing
-    } else {
-        try {
-            const decoded = jwt.verify(refreshTokenCookie, process.env.refreshSecKey);
-            let accessToken = jwt.sign({ username: decoded.username }, process.env.accessSecKey, { expiresIn: "20m" });
-            res.cookie('access_token', accessToken, { maxAge: 1200000 });
-            return true; // Refresh token is valid
-        } catch (err) {
-            return false; // Refresh token is invalid
-        }
-    }
-};
-
-
+// const verifyRefreshToken = async (req, res) => {
+//     let refreshTokenCookie = req.cookies.refresh_token;
+//     if (!refreshTokenCookie) {
+//         return false; // Refresh token is missing
+//     } else {
+//         try {
+//             const decoded = jwt.verify(refreshTokenCookie, process.env.refreshSecKey);
+//             let accessToken = jwt.sign({ username: decoded.username }, process.env.accessSecKey, { expiresIn: "20m" });
+//             res.cookie('access_token', accessToken, { maxAge: 1200000 });
+//             return true; // Refresh token is valid
+//         } catch (err) {
+//             return false; // Refresh token is invalid
+//         }
+//     }
+// };
 
 
 
@@ -176,7 +174,9 @@ const verifyRefreshToken = async (req, res) => {
 
 
 
-app.post('/books/addbooks' , VerifyUser , async(req ,res)=>{
+
+
+app.post('/books/addbooks' , async(req ,res)=>{
 let valid;
 try{
 
@@ -207,7 +207,7 @@ catch(err){
 })
 
 
-app.get('/books/all-books', VerifyUser , async( req , res)=>{
+app.get('/books/all-books',  async( req , res)=>{
 
 let valid 
 
@@ -231,7 +231,7 @@ res. status(500).send({mesage : `we could not get the books ${err}`})
 }
 });
 
-app.get('/books/bookfind/:id', VerifyUser, async(req , res)=>{
+app.get('/books/bookfind/:id', async(req , res)=>{
     try{
 
         let {id} = req.params;
@@ -255,7 +255,7 @@ app.get('/books/bookfind/:id', VerifyUser, async(req , res)=>{
     });
 
 
-app.put('/books/editbook/:id' , VerifyUser ,async(req, res)=>{
+app.put('/books/editbook/:id' , async(req, res)=>{
 
 
 
@@ -279,7 +279,7 @@ app.put('/books/editbook/:id' , VerifyUser ,async(req, res)=>{
 })
 
 
-app.delete('/books/delete/:id' , VerifyUser , async(req,res)=>{
+app.delete('/books/delete/:id' ,  async(req,res)=>{
 
 
     try{
