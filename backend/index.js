@@ -1,65 +1,65 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const bcryptjs = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-require('dotenv').config();
-
+express = require('express');
+let cors = require('cors')
+let mongoose = require('mongoose');
 const { myBookModel } = require('./bookModel');
-const { logModel } = require('./loginmodel');
+const {logModel} = require('./loginmodel')
+let app = express();
+let jwt = require('jsonwebtoken');
+let cookieparser = require('cookie-parser')
+let cookies = require('cookies');
+let bcryptjs = require('bcryptjs');
 
-const app = express();
+require('dotenv').config();
+const corsOptions = {
+    origin: 'https://good-book-store-fe.vercel.app',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+  
+  // Enable CORS for all routes
+  app.use(cors(corsOptions));
 
-// Middleware
-app.use(cors({
-    origin: 'https://good-book-store-fe.vercel.app', // Allow requests from frontend origin
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-}));
-app.use(express.json());
-app.use(cookieParser());
+app.use(express.json()); 
+app.use(cookieparser());
 
-// MongoDB Connection
+
+
+
+
+// {remeber to add this before trying the post method}
+
 mongoose.connect(process.env.MongoDBURL)
-    .then(() => {
-        console.log("Connected to MongoDB");
-        app.listen(process.env.PORT, () => {
-            console.log(`Server is running on port ${process.env.PORT}`);
-        });
-    })
-    .catch((err) => {
-        console.error("Error connecting to the database:", err);
-    });
-
-// Routes
-
-// Test route
-app.get('/', (req, res) => {
-    res.status(200).send({ message: "Backend running!" });
+.then(()=>{console.log("We are succesfuly connected to the database");
+app.listen(()=>{
+    console.log(`We are listing to port ${process.env.PORT}`)
 });
+})
+.catch((err)=>{console.log(`Error connecting to the databse ${err}`)})
 
-// User registration route
 app.post('/user/register', async (req, res) => {
+    let { firstname, lastname, email, username, password } = req.body;
+
     try {
-        const { firstname, lastname, email, username, password } = req.body;
-        
-        // Validate request body
+        // Check if all required fields are provided
         if (!firstname || !lastname || !email || !username || !password) {
             return res.status(400).json({ message: "Please fill all required fields!" });
         }
 
-        // Check if username already exists
-        const existingUser = await logModel.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ message: "User already exists. Please use a different username or login!" });
+        // Check if password meets minimum length requirement
+        if (password.length < 8) {
+            return res.status(402).json({ message: "Password must be at least 8 characters or more!" });
         }
 
-        // Hash password
-        const hashedPassword = await bcryptjs.hash(password, 12);
+        // Check if the username already exists
+        let doesUserNameExist = await logModel.findOne({ username });
+        if (doesUserNameExist) {
+            return res.status(401).json({ message: "User already exists. Please use a different username or login!" });
+        }
 
-        // Create new user
-        await logModel.create({
+        // Hash the password before storing it
+        let hashedPassword = await bcryptjs.hash(password, 12);
+
+        // Create a new user with hashed password
+        let newUser = await logModel.create({
             firstname,
             lastname,
             email,
@@ -69,108 +69,253 @@ app.post('/user/register', async (req, res) => {
 
         return res.status(200).json({ message: "New user account created successfully!" });
     } catch (err) {
-        console.error("Error registering user:", err);
+        console.error(err);
         return res.status(500).json({ message: "Server side error. Error Type: " + err.message });
     }
 });
 
-// User login route
-app.post('/user/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
+app.post('/user/login', async (req, res) =>{
 
-        // Validate request body
-        if (!username || !password) {
-            return res.status(400).json({ message: "Please fill out all required fields" });
+try{
+
+let {username , password} = req.body;
+
+if(!username || !password){
+    return res.status(400).json({ message: "Please fill out all required fields"});
+}
+
+else {
+  let doesUserExist = await logModel.findOne({username});
+   if(!doesUserExist){
+    return res.status(400).json({ message: "User does not exist!"});
+   }
+
+   else{
+    let passwordMatch = await bcryptjs.compare(password , doesUserExist.password);
+        if(!passwordMatch){
+            return res.status(400).json({ message: "Invalid username or password. Please try again!"});
         }
+        else{
+            let accessToken =  jwt.sign({username: doesUserExist.username} ,process.env.accessSecKey , {expiresIn:"20m"});
+            let refreshToken = jwt.sign({username: doesUserExist.username} ,process.env.refreshSecKey , {expiresIn:"40m"});
 
-        // Check if user exists
-        const user = await logModel.findOne({ username });
-        if (!user) {
-            return res.status(400).json({ message: "User does not exist!" });
+            res.cookie('access_token', accessToken, { maxAge: 1200000});
+            res.cookie('refresh_token', refreshToken, { maxAge: 2400000 , httpOnly: true });
+            return res.status(200).json({ message: "Successfully logged In!"});
         }
+   }
+}
 
-        // Verify password
-        const passwordMatch = await bcryptjs.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(400).json({ message: "Invalid username or password. Please try again!" });
-        }
 
-        // Create and set tokens
-        const accessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "20m" });
-        const refreshToken = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "40m" });
 
-        res.cookie('access_token', accessToken, { maxAge: 1200000, httpOnly: true });
-        res.cookie('refresh_token', refreshToken, { maxAge: 2400000, httpOnly: true });
 
-        return res.status(200).json({ message: "Successfully logged In!" });
-    } catch (err) {
-        console.error("Error logging in:", err);
-        return res.status(500).json({ message: "Server side error. Error Type: " + err.message });
-    }
+}
+catch(err){
+
+    return res.status(500).json({ message: "Server side error. Error Type: " + err.message });
+
+}
+
 });
 
-// Verify user middleware
-const verifyUser = async (req, res, next) => {
-    try {
-        const accessToken = req.cookies.access_token;
 
-        if (!accessToken) {
-            return res.status(401).json({ valid: false, message: "Access token is missing!" });
+app.post('/user/logout' ,async (req ,res)=>{
+    try{
+
+        let refreshTokenInCookie= req.cookies.refresh_token;
+        if(!refreshTokenInCookie){
+            return res.status(400).json({message : "User already logged out!"})
+
         }
+        else{
+            res.clearCookie('access_token');
+            res.clearCookie('refresh_token');
+            return res.json({ message: 'Logout successful' });
+        }
+    
 
-        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    }
+    catch(err){
+        res.status(500).json({message : "Unable to lofg out. Server error!"})
+    }
+})
+
+
+
+
+
+const VerifyUser = async (req, res, next) => {
+    let accessTokenCookie = req.cookies.access_token;
+    if (!accessTokenCookie) {
+        const refreshSuccessful = await verifyRefreshToken(req, res);
+        if (refreshSuccessful) {
+            next(); // Proceed if refresh token successfully refreshed the access token
+        } else {
+            return res.status(401).json({ valid: false, message: "Invalid access token!" });
+        }
+    } else {
+        jwt.verify(accessTokenCookie, process.env.accessSecKey, (err, decoded) => {
             if (err) {
+                // Refresh token is missing or expired, send 401 Unauthorized
                 return res.status(401).json({ valid: false, message: "Invalid access token!" });
             } else {
+                // Access token is valid, proceed to the next middleware
                 req.username = decoded.username;
                 next();
             }
         });
-    } catch (err) {
-        console.error("Error verifying user:", err);
-        return res.status(500).json({ message: "Server side error. Error Type: " + err.message });
     }
 };
 
-// Get all books route
-app.get('/books/all-books', verifyUser, async (req, res) => {
-    try {
-        const allBooks = await myBookModel.find({});
-        res.status(200).json({ valid: true, data: allBooks });
-    } catch (err) {
-        console.error("Error fetching all books:", err);
-        res.status(500).json({ message: `We could not get the books ${err}` });
+const verifyRefreshToken = async (req, res) => {
+    let refreshTokenCookie = req.cookies.refresh_token;
+    if (!refreshTokenCookie) {
+        return false; // Refresh token is missing
+    } else {
+        try {
+            const decoded = jwt.verify(refreshTokenCookie, process.env.refreshSecKey);
+            let accessToken = jwt.sign({ username: decoded.username }, process.env.accessSecKey, { expiresIn: "20m" });
+            res.cookie('access_token', accessToken, { maxAge: 1200000 });
+            return true; // Refresh token is valid
+        } catch (err) {
+            return false; // Refresh token is invalid
+        }
     }
+};
+
+
+
+
+
+
+
+
+
+app.post('/books/addbooks' , VerifyUser , async(req ,res)=>{
+let valid;
+try{
+
+if(!req.body.title || !req.body.author || !req.body.year  || !req.body.image  || !req.body.desc){
+
+    res.send({message : "please fill all required fileds and submit the book"})
+}
+
+let newBook = await myBookModel.create({
+
+    title : req.body.title,
+    author : req.body.author,
+    year : req.body.year,
+    image : req.body.image,
+    desc : req.body.desc
+    
+
+})
+
+res.status(200).send({valid : true , message : "Book has been added to the database"})
+
+}
+catch(err){
+
+    res.status(500).send({message : "We could not add the book!"})
+}
+
+})
+
+
+app.get('/books/all-books', VerifyUser , async( req , res)=>{
+
+let valid 
+
+try{
+let AllBooks = await myBookModel.find({});
+
+if(!AllBooks){
+
+    res.status(400).send({message : "We can' find all books at this time."})
+}
+
+else {
+    res.status(200).json({valid : true , data : AllBooks});
+}
+
+
+}
+
+catch (err){
+res. status(500).send({mesage : `we could not get the books ${err}`})
+}
 });
 
-// Add book route
-app.post('/books/addbooks', verifyUser, async (req, res) => {
-    try {
-        const { title, author, year, image, desc } = req.body;
+app.get('/books/bookfind/:id', VerifyUser, async(req , res)=>{
+    try{
 
-        // Validate request body
-        if (!title || !author || !year || !image || !desc) {
-            return res.status(400).json({ message: "Please fill all required fields and submit the book" });
+        let {id} = req.params;
+
+    let BookById = await myBookModel.findById(id);
+
+
+    if(!BookById){
+
+        res.status(400).json({message : "There is not in our book store."})
+    }
+
+    return res.status(200).json(BookById);
+    
+   
+    }
+    
+    catch (err){
+    res.status(500).json({mesage : `we could not get the books ${err}`})
+    }
+    });
+
+
+app.put('/books/editbook/:id' , VerifyUser ,async(req, res)=>{
+
+
+
+    try{
+
+        let {id}=req.params;
+    
+        if(!req.body.title || !req.body.author || !req.body.year  || !req.body.image  || !req.body.desc){
+
+            res.send({message : "please fill all required fileds and submit the book"})
         }
 
-        // Create new book
-        const newBook = await myBookModel.create({
-            title,
-            author,
-            year,
-            image,
-            desc
-        });
+    let editedBook = await myBookModel.findByIdAndUpdate(id,req.body);
 
-        res.status(200).json({ valid: true, message: "Book has been added to the database" });
-    } catch (err) {
-        console.error("Error adding book:", err);
-        res.status(500).json({ message: "We could not add the book!" });
+    res.status(200).send({message : "Book has been updated succesfully"})
     }
-});
 
-// Other routes: book find by ID, edit book, delete book
+    catch(err){
+        res. status(500).send({mesage : `Error updating the book ${err}`})
+    }
+})
 
-// Export app
-// module.exports = app;
+
+app.delete('/books/delete/:id' , VerifyUser , async(req,res)=>{
+
+
+    try{
+        let {id}=req.params;
+
+    let deleteBook = await myBookModel.findByIdAndDelete(id);
+
+    if(deleteBook){
+
+        res.status(200).send({mesage : "Book has been deleted successsfully"})
+    }
+ 
+    else{
+
+        res.status(400).send({mesage : "Error deleting this book!"})
+    }
+
+    }
+    catch(err){
+
+        res. status(500).send({mesage : `Error deleteing the book ${err}`})
+
+    }
+})
