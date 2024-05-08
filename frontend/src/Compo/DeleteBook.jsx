@@ -32,7 +32,7 @@ useEffect(()=>{
 
  
 function deleteBook() {
-    axios.delete(`https://bookstorebackend-jzt9hayz9-abel-girma-webits-projects.vercel.app/books/delete/${id}`)
+    axios.delete(`https://good-book-store-be.vercel.app/books/delete/${id}`)
     .then(()=>{console.log("Book has been deleted");
         setStatus(true)})
     .catch((err)=>{console.log(`Error deleteing the book. Err desc : ${err}`);
