@@ -25,7 +25,7 @@ useEffect(()=>{
 .catch((err)=>{console.log(err);
         Navigate('/')})
 
-},[0])
+},[])
 
 
 
