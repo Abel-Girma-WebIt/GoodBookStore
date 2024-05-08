@@ -19,10 +19,10 @@ useEffect(()=>{
 
 axios.get('https://good-book-store-be.vercel.app/books/all-books')
 .then((res)=>{
-    
+    if(res.data.valid){
     setallBooks(res.data.data);
     setTokenStatus(true);
-})
+}})
 .catch((err)=>{console.log(err);
         setTokenStatus(false);
         console.log(`Error fetching user data: ${err}`);
